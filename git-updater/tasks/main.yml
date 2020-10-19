@@ -1,0 +1,15 @@
+---
+- name: Ensure update and logrotate scripts are in place
+template:
+    src: "templates/update.sh.j2"
+    dest: "{{ SCRIPTS_DIR }}/update.sh"
+    owner: "mediawiki"
+    group: "mediawiki"
+    mode: 0774
+- name: Ensure update script runs every five minutes, from 6am to 9pm
+    cron:
+    name: "wbm-update"
+    minute: "*/5"
+    hour: "6-21"
+    job: "{{ SCRIPTS_DIR }}/update.sh"
+    user: "mediawiki"
