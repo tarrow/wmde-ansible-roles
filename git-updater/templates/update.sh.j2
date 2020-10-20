@@ -1,50 +1,27 @@
 #!/bin/bash
-MW_PATH={{ MW_PATH }}
-UPDATE_LOG={{ LOG_DIR }}/update.log
-GIT_LOG={{ LOG_DIR }}/git.log
-COMPOSER_LOG={{ LOG_DIR }}/composer.log
-MAINT_LOG={{ LOG_DIR }}/maintenance.log
-ERROR_LOG={{ LOG_DIR }}/error.log
+GIT_PATH=$1
+LOG_DIR=$2
+UPDATE_LOG=$LOG_DIR/update.log
+GIT_LOG=$LOG_DIR/git.log
+COMPOSER_LOG=$LOG_DIR/composer.log
+MAINT_LOG=$LOG_DIR/maintenance.log
+ERROR_LOG=$LOG_DIR/error.log
 
 log () {
-  echo $1 | tee -a  $2
+  echo "$1" | tee -a "$2"
 }
 
 log_all () {
-  echo $1 | tee -a  ${UPDATE_LOG} ${GIT_LOG} ${COMPOSER_LOG} ${MAINT_LOG} ${ERROR_LOG}
+  echo "$1" | tee -a  "${UPDATE_LOG}" "${GIT_LOG}" "${COMPOSER_LOG}" "${MAINT_LOG}" "${ERROR_LOG}"
 }
 
 # start
 log_all "########### $(date) ###########"
 
-for i in "${array[@]}"
-do
-    log "## updating $i" "${UPDATE_LOG} ${GIT_LOG}"
-	git pull -C "$i" origin master 2>> $ERROR_LOG | tee -a ${GIT_LOG}
-done
-
-log "## updating ${MW_PATH}" "${UPDATE_LOG} ${GIT_LOG}"
-cd ${MW_PATH}
-git pull origin master 2>> $ERROR_LOG | tee -a ${GIT_LOG}
-
-log "## updating Wikibase" "${UPDATE_LOG} ${GIT_LOG}"
-cd extensions/Wikibase
-git pull origin master 2>> $ERROR_LOG | tee -a ${GIT_LOG}
-git submodule update
-
-log "## updating Wikibase Manifest" "${UPDATE_LOG} ${GIT_LOG}"
-cd extensions/WikibaseManifest
-git pull origin master 2>> $ERROR_LOG | tee -a ${GIT_LOG}
-
-log "## updating OAuth" "${UPDATE_LOG} ${GIT_LOG}"
-cd extensions/OAuth
-git pull origin master 2>> $ERROR_LOG | tee -a ${GIT_LOG}
-
-log "## running composer update" ${UPDATE_LOG}
-docker exec wikibase php /var/www/html/composer.phar update 2>&1 | tee -a ${COMPOSER_LOG}
-
-log "## running maintenance/update.php" ${UPDATE_LOG}
-docker exec wikibase php maintenance/update.php --quick 2>> $ERROR_LOG  | tee -a ${MAINT_LOG}
+log "## updating ${GIT_PATH}" "${UPDATE_LOG} ${GIT_LOG}"
+cd ${GIT_PATH}
+git pull origin master 2>> "$ERROR_LOG" | tee -a ${GIT_LOG}
+git submodule update 2>> "$ERROR_LOG" | tee -a ${GIT_LOG}
 
 # done
 log_all "########### $(date) ###########"

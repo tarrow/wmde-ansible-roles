@@ -6,20 +6,22 @@ This role install a cronjob that repeatedly pulls the latest version of the mast
 Role Variables
 --------------
 
-user: the user that should be running the update cronjob
-scripts dir: where the update cronjob script should be saved
-repositories: which repositories should be updated.
-
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+USERNAME: the user that should be running the update cronjob
+SCRIPTS_DIR: where the update cronjob script should be saved
+LOG_DIR: directory where logs from updating should go
+git_repositories: which repositories should be updated.
 
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+- hosts: test_systems
+  name: "Setup and run a test system for the 'WikibaseManifest' extension"
+  become: yes
+  roles:
+    - role: '/home/tom/src/wikimedia/wmde-ansible-roles/git-updater'
+      vars:
+        git_directories:
+          - "/opt/Wikibase/src"
 
 License
 -------
